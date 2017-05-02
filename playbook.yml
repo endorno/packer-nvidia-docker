@@ -2,8 +2,9 @@
 
 - hosts: all
   vars:
-    nvidia_driver_version: 378
-    nvidia_docker_package_url: https://github.com/NVIDIA/nvidia-docker/releases/download/v1.0.0/nvidia-docker_1.0.0-1_amd64.deb
+    nvidia_driver_version: 375
+    nvidia_driver_url: http://us.download.nvidia.com/tesla/375.51/nvidia-driver-local-repo-ubuntu1604_375.51-1_amd64.deb
+    nvidia_docker_package_url: https://github.com/NVIDIA/nvidia-docker/releases/download/v1.0.1/nvidia-docker_1.0.1-1_amd64.deb
   become: yes
   tasks:
     - name: packages related for APT with https are installed
@@ -51,17 +52,15 @@
         name=docker-engine
         state=present
 
-    - name: graphics-driver ppa APT repository is registered
-      apt_repository:
-        repo=ppa:graphics-drivers/ppa
-        filename=graphic-driver
+    - name: nvidia-driver deb
+      apt:
+        deb={{ nvidia_driver_url }}
         state=present
-        mode=0644
-        update_cache=yes
-
+        
     - name: NVIDIA graphics driver {{ nvidia_driver_version }} is installed
       apt:
-        name=nvidia-{{ nvidia_driver_version }}
+        update_cache=yes
+        name=cuda-drivers
         state=present
 
     - name: disable nonveau, opensource version of nvidia graphics driver
@@ -74,4 +73,3 @@
       apt:
         deb={{ nvidia_docker_package_url }}
         state=present
-
